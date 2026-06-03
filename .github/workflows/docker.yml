@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'       # v1.0.0、v2.3.4
   workflow_dispatch:
 
 permissions:
@@ -34,8 +36,18 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=raw,value=latest
-            type=sha
+            # main 分支构建时打 latest
+            type=raw,value=latest,enable={{is_default_branch}}
+
+            # Git SHA
+            type=sha,prefix=
+
+            # git tag -> docker tag
+            type=ref,event=tag
+
+            # 语义化版本号（如果 tag 是 v1.2.3）
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
 
       - name: Build and Push
         uses: docker/build-push-action@v6

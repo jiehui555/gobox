@@ -4,6 +4,7 @@ go 1.25.9
 
 require (
 	github.com/danielgtaylor/huma/v2 v2.38.0
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	golang.org/x/crypto v0.53.0
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.1
@@ -21,7 +22,6 @@ require (
 	github.com/go-openapi/swag/jsonname v0.25.4 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gohugoio/hugo v0.149.1 // indirect
-	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect

@@ -1,4 +1,40 @@
 {{define "content"}}
-<h1>欢迎使用 Gobox 管理后台</h1>
-<p>这是一个基于 Huma 框架和 Pico CSS 构建的管理后台。</p>
+<article>
+    <header>
+        <h1>欢迎使用 Gobox 管理后台</h1>
+    </header>
+    <p>这是一个基于 Huma 框架和 Pico CSS 构建的管理后台。</p>
+    <p id="userInfo"></p>
+</article>
+
+<script>
+// 从localStorage获取token并显示用户信息
+async function loadUserInfo() {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/auth/check', {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.authenticated && result.user) {
+            document.getElementById('userInfo').textContent = 
+                '当前登录用户: ' + result.user.username + ' (' + result.user.email + ')';
+        }
+    } catch (error) {
+        console.error('获取用户信息失败:', error);
+    }
+}
+
+// 页面加载时获取用户信息
+loadUserInfo();
+</script>
 {{end}}

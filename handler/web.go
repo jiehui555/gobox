@@ -57,12 +57,16 @@ type User struct {
 
 // RegisterWeb 注册网页路由
 func RegisterWeb(api huma.API) {
+	// 创建Web认证中间件
+	webAuthMiddleware := auth.WebAuthMiddleware(api)
+
 	huma.Register(api, huma.Operation{
 		OperationID: "web-home",
 		Method:      http.MethodGet,
 		Path:        "/",
 		Summary:     "主页",
 		Tags:        []string{"Web"},
+		Middlewares: huma.Middlewares{webAuthMiddleware},
 	}, func(ctx context.Context, input *struct{}) (*WebOutput, error) {
 		body, err := web.RenderHome()
 		if err != nil {

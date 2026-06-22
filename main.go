@@ -23,7 +23,7 @@ func main() {
 
 	cli := humacli.New(func(hooks humacli.Hooks, options *Options) {
 		router := http.NewServeMux()
-		api := humago.New(router, huma.DefaultConfig("我的 API", "1.2.0"))
+		api := humago.New(router, huma.DefaultConfig("我的 API", "1.3.0"))
 
 		// 注册路由
 		handler.RegisterGreeting(api)

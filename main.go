@@ -19,13 +19,16 @@ type Options struct {
 func main() {
 	cli := humacli.New(func(hooks humacli.Hooks, options *Options) {
 		router := http.NewServeMux()
-		api := humago.New(router, huma.DefaultConfig("我的 API", "1.1.0"))
+		api := humago.New(router, huma.DefaultConfig("我的 API", "1.2.0"))
 
 		// 注册路由
 		handler.RegisterGreeting(api)
 		handler.RegisterReview(api)
 		handler.RegisterTopfeelSignIn(api)
 		handler.RegisterTopfeelReply(api)
+
+		// 注册网页路由
+		handler.RegisterWeb(api)
 
 		hooks.OnStart(func() {
 			fmt.Printf("正在端口 %d 上启动服务器...\n", options.Port)

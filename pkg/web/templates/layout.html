@@ -1,0 +1,25 @@
+{{define "layout"}}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - Gobox 管理后台</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+</head>
+<body>
+    <nav class="container-fluid">
+        <ul>
+            <li><strong>Gobox 管理后台</strong></li>
+        </ul>
+        <ul>
+            <li><a href="/">首页</a></li>
+            <li><a href="/docs">API 文档</a></li>
+        </ul>
+    </nav>
+    <main class="container">
+        {{template "content" .}}
+    </main>
+</body>
+</html>
+{{end}}

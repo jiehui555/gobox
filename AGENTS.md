@@ -26,16 +26,27 @@ docker build -t gobox .
 ## 项目结构
 
 ```
-main.go              # 入口，路由注册
-handler/             # API 路由处理器
-  greeting.go        # GET /greeting/{name}
-  review.go          # POST /reviews
-  topfeel.go         # POST /topfeel/sign-in, /topfeel/reply
-  web.go             # GET / (网页首页)
+main.go                    # 入口，路由注册
+handler/                   # API 路由处理器
+  greeting.go              # GET /greeting/{name}
+  review.go                # POST /reviews
+  topfeel.go               # POST /topfeel/sign-in, /topfeel/reply
+  web.go                   # Web 页面路由 + 用户管理 API
 pkg/
-  topfeel/client.go  # Topfeel API 客户端封装
-  web/templates.go   # 模板渲染引擎
-  web/templates/     # HTML 模板文件 (embed)
+  auth/                    # JWT 认证
+    jwt.go                 # Token 生成与解析
+    middleware.go          # Web/API 认证中间件
+  database/                # 数据库层
+    database.go            # GORM + SQLite，User 模型及 CRUD
+  topfeel/
+    client.go              # Topfeel API 客户端封装
+  web/
+    templates.go           # 模板渲染引擎 (embed)
+    templates/             # HTML 模板文件
+      layout.html          # 布局模板（导航栏）
+      home.html            # 首页
+      login.html           # 登录页
+      users.html           # 用户管理页（列表/创建/编辑/删除）
 ```
 
 ## 技术栈

@@ -55,10 +55,30 @@ type User struct {
 	Role     string `json:"role" example:"admin" doc:"角色"`
 }
 
+// CreateUserInput 创建用户请求输入
+type CreateUserInput struct {
+	Body struct {
+		Email    string `json:"email" example:"user@example.com" doc:"邮箱" required:"true"`
+		Password string `json:"password" example:"password123" doc:"密码" required:"true"`
+		Username string `json:"username" example:"张三" doc:"用户名" required:"true"`
+		Role     string `json:"role" example:"user" doc:"角色"`
+	}
+}
+
+// CreateUserOutput 创建用户响应输出
+type CreateUserOutput struct {
+	Body struct {
+		Success bool   `json:"success" example:"true" doc:"是否成功"`
+		Message string `json:"message" example:"创建成功" doc:"消息"`
+	}
+}
+
 // RegisterWeb 注册网页路由
 func RegisterWeb(api huma.API) {
 	// 创建Web认证中间件
 	webAuthMiddleware := auth.WebAuthMiddleware(api)
+	// 创建API认证中间件
+	apiAuthMiddleware := auth.APIAuthMiddleware(api)
 
 	huma.Register(api, huma.Operation{
 		OperationID: "web-home",
@@ -100,6 +120,62 @@ func RegisterWeb(api huma.API) {
 		return &WebOutput{
 			ContentType: "text/html; charset=utf-8",
 			Body:        body,
+		}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "api-create-user",
+		Method:      http.MethodPost,
+		Path:        "/api/users",
+		Summary:     "创建用户",
+		Tags:        []string{"User"},
+		Middlewares: huma.Middlewares{apiAuthMiddleware},
+	}, func(ctx context.Context, input *CreateUserInput) (*CreateUserOutput, error) {
+		// 检查邮箱是否已存在
+		_, err := database.GetUserByEmail(input.Body.Email)
+		if err == nil {
+			return &CreateUserOutput{
+				Body: struct {
+					Success bool   `json:"success" example:"true" doc:"是否成功"`
+					Message string `json:"message" example:"创建成功" doc:"消息"`
+				}{
+					Success: false,
+					Message: "邮箱已被使用",
+				},
+			}, nil
+		}
+
+		// 密码哈希
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Body.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return nil, huma.Error500InternalServerError("密码加密失败", err)
+		}
+
+		// 设置默认角色
+		role := input.Body.Role
+		if role == "" {
+			role = "user"
+		}
+
+		// 创建用户
+		user := &database.User{
+			Email:    input.Body.Email,
+			Password: string(hashedPassword),
+			Username: input.Body.Username,
+			Role:     role,
+		}
+		if err := database.CreateUser(user); err != nil {
+			return nil, huma.Error500InternalServerError("创建用户失败", err)
+		}
+
+		return &CreateUserOutput{
+			Body: struct {
+				Success bool   `json:"success" example:"true" doc:"是否成功"`
+				Message string `json:"message" example:"创建成功" doc:"消息"`
+			}{
+				Success: true,
+				Message: "创建成功",
+			},
 		}, nil
 	})
 

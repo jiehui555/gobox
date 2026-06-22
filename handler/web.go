@@ -42,8 +42,8 @@ type CheckAuthInput struct {
 // CheckAuthOutput 检查登录状态输出
 type CheckAuthOutput struct {
 	Body struct {
-		Authenticated bool   `json:"authenticated" example:"true" doc:"是否已登录"`
-		User          *User  `json:"user,omitempty" doc:"用户信息"`
+		Authenticated bool  `json:"authenticated" example:"true" doc:"是否已登录"`
+		User          *User `json:"user,omitempty" doc:"用户信息"`
 	}
 }
 
@@ -69,6 +69,30 @@ func RegisterWeb(api huma.API) {
 		Middlewares: huma.Middlewares{webAuthMiddleware},
 	}, func(ctx context.Context, input *struct{}) (*WebOutput, error) {
 		body, err := web.RenderHome()
+		if err != nil {
+			return nil, huma.Error500InternalServerError("渲染页面失败", err)
+		}
+
+		return &WebOutput{
+			ContentType: "text/html; charset=utf-8",
+			Body:        body,
+		}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "web-users",
+		Method:      http.MethodGet,
+		Path:        "/users",
+		Summary:     "用户管理",
+		Tags:        []string{"Web"},
+		Middlewares: huma.Middlewares{webAuthMiddleware},
+	}, func(ctx context.Context, input *struct{}) (*WebOutput, error) {
+		users, err := database.GetUsers()
+		if err != nil {
+			return nil, huma.Error500InternalServerError("获取用户列表失败", err)
+		}
+
+		body, err := web.RenderUsers(users)
 		if err != nil {
 			return nil, huma.Error500InternalServerError("渲染页面失败", err)
 		}
@@ -171,8 +195,8 @@ func RegisterWeb(api huma.API) {
 		if err != nil {
 			return &CheckAuthOutput{
 				Body: struct {
-					Authenticated bool   `json:"authenticated" example:"true" doc:"是否已登录"`
-					User          *User  `json:"user,omitempty" doc:"用户信息"`
+					Authenticated bool  `json:"authenticated" example:"true" doc:"是否已登录"`
+					User          *User `json:"user,omitempty" doc:"用户信息"`
 				}{
 					Authenticated: false,
 				},
@@ -181,8 +205,8 @@ func RegisterWeb(api huma.API) {
 
 		return &CheckAuthOutput{
 			Body: struct {
-				Authenticated bool   `json:"authenticated" example:"true" doc:"是否已登录"`
-				User          *User  `json:"user,omitempty" doc:"用户信息"`
+				Authenticated bool  `json:"authenticated" example:"true" doc:"是否已登录"`
+				User          *User `json:"user,omitempty" doc:"用户信息"`
 			}{
 				Authenticated: true,
 				User: &User{

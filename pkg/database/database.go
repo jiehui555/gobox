@@ -87,6 +87,13 @@ func CreateUser(user *User) error {
 	return db.Create(user).Error
 }
 
+// GetUsers 获取所有用户
+func GetUsers() ([]User, error) {
+	var users []User
+	err := db.Order("id asc").Find(&users).Error
+	return users, err
+}
+
 // GetDB 获取数据库实例
 func GetDB() *gorm.DB {
 	return db

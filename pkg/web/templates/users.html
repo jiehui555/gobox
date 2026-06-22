@@ -1,0 +1,30 @@
+{{define "content"}}
+<article>
+    <header>
+        <h2>用户管理</h2>
+        <p>共 {{len .Users}} 个用户</p>
+    </header>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>用户名</th>
+                <th>邮箱</th>
+                <th>角色</th>
+                <th>创建时间</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Users}}
+            <tr>
+                <td>{{.ID}}</td>
+                <td>{{.Username}}</td>
+                <td>{{.Email}}</td>
+                <td>{{.Role}}</td>
+                <td>{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</article>
+{{end}}

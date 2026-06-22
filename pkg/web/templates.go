@@ -5,6 +5,8 @@ import (
 	"embed"
 	"fmt"
 	"html/template"
+
+	"github.com/jiehui555/gobox/pkg/database"
 )
 
 //go:embed templates/*.html
@@ -15,9 +17,23 @@ type TemplateData struct {
 	Title string
 }
 
+// UsersPageData 用户列表页面数据
+type UsersPageData struct {
+	TemplateData
+	Users []database.User
+}
+
 // RenderHome 渲染首页
 func RenderHome() ([]byte, error) {
 	return renderPage("home", &TemplateData{Title: "首页"})
+}
+
+// RenderUsers 渲染用户列表页面
+func RenderUsers(users []database.User) ([]byte, error) {
+	return renderPage("users", &UsersPageData{
+		TemplateData: TemplateData{Title: "用户管理"},
+		Users:        users,
+	})
 }
 
 // RenderLogin 渲染登录页面
@@ -26,7 +42,7 @@ func RenderLogin() ([]byte, error) {
 }
 
 // renderPage 渲染页面
-func renderPage(name string, data *TemplateData) ([]byte, error) {
+func renderPage(name string, data any) ([]byte, error) {
 	// 读取页面模板（先解析，定义"content"模板）
 	pageBytes, err := templatesFS.ReadFile("templates/" + name + ".html")
 	if err != nil {

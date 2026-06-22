@@ -20,9 +20,9 @@ type User struct {
 var db *gorm.DB
 
 // Init 初始化数据库
-func Init() {
+func Init(dbPath string) {
 	var err error
-	db, err = gorm.Open(sqlite.Open("gobox.db"), &gorm.Config{})
+	db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("连接数据库失败: %v", err)
 	}

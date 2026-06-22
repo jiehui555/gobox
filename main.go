@@ -14,16 +14,16 @@ import (
 
 // Options CLI 的配置选项
 type Options struct {
-	Port int `help:"监听的端口号" short:"p" default:"8060"`
+	Port   int    `help:"监听的端口号" short:"p" default:"8060"`
+	DBPath string `help:"数据库文件路径" short:"d" default:"gobox.db"`
 }
 
 func main() {
-	// 初始化数据库
-	database.Init()
-
 	cli := humacli.New(func(hooks humacli.Hooks, options *Options) {
+		// 初始化数据库
+		database.Init(options.DBPath)
 		router := http.NewServeMux()
-		api := humago.New(router, huma.DefaultConfig("我的 API", "1.3.1"))
+		api := humago.New(router, huma.DefaultConfig("我的 API", "1.4.0"))
 
 		// 注册路由
 		handler.RegisterGreeting(api)

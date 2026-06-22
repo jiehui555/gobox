@@ -73,6 +73,19 @@ type CreateUserOutput struct {
 	}
 }
 
+// DeleteUserInput 删除用户请求输入
+type DeleteUserInput struct {
+	ID uint `path:"id" doc:"用户ID"`
+}
+
+// DeleteUserOutput 删除用户响应输出
+type DeleteUserOutput struct {
+	Body struct {
+		Success bool   `json:"success" example:"true" doc:"是否成功"`
+		Message string `json:"message" example:"删除成功" doc:"消息"`
+	}
+}
+
 // RegisterWeb 注册网页路由
 func RegisterWeb(api huma.API) {
 	// 创建Web认证中间件
@@ -175,6 +188,43 @@ func RegisterWeb(api huma.API) {
 			}{
 				Success: true,
 				Message: "创建成功",
+			},
+		}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "api-delete-user",
+		Method:      http.MethodDelete,
+		Path:        "/api/users/{id}",
+		Summary:     "删除用户",
+		Tags:        []string{"User"},
+		Middlewares: huma.Middlewares{apiAuthMiddleware},
+	}, func(ctx context.Context, input *DeleteUserInput) (*DeleteUserOutput, error) {
+		// 获取当前用户ID，不能删除自己
+		currentUserID, _ := ctx.Value("user_id").(uint)
+		if currentUserID == input.ID {
+			return &DeleteUserOutput{
+				Body: struct {
+					Success bool   `json:"success" example:"true" doc:"是否成功"`
+					Message string `json:"message" example:"删除成功" doc:"消息"`
+				}{
+					Success: false,
+					Message: "不能删除自己",
+				},
+			}, nil
+		}
+
+		if err := database.DeleteUser(input.ID); err != nil {
+			return nil, huma.Error500InternalServerError("删除用户失败", err)
+		}
+
+		return &DeleteUserOutput{
+			Body: struct {
+				Success bool   `json:"success" example:"true" doc:"是否成功"`
+				Message string `json:"message" example:"删除成功" doc:"消息"`
+			}{
+				Success: true,
+				Message: "删除成功",
 			},
 		}, nil
 	})

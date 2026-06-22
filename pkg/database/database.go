@@ -87,6 +87,11 @@ func CreateUser(user *User) error {
 	return db.Create(user).Error
 }
 
+// DeleteUser 删除用户
+func DeleteUser(id uint) error {
+	return db.Delete(&User{}, id).Error
+}
+
 // GetUsers 获取所有用户
 func GetUsers() ([]User, error) {
 	var users []User

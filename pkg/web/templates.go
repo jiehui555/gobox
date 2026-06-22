@@ -20,6 +20,11 @@ func RenderHome() ([]byte, error) {
 	return renderPage("home", &TemplateData{Title: "首页"})
 }
 
+// RenderLogin 渲染登录页面
+func RenderLogin() ([]byte, error) {
+	return renderPage("login", &TemplateData{Title: "登录"})
+}
+
 // renderPage 渲染页面
 func renderPage(name string, data *TemplateData) ([]byte, error) {
 	// 读取页面模板（先解析，定义"content"模板）

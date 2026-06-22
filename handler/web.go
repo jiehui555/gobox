@@ -33,4 +33,22 @@ func RegisterWeb(api huma.API) {
 			Body:        body,
 		}, nil
 	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "web-login",
+		Method:      http.MethodGet,
+		Path:        "/login",
+		Summary:     "登录页面",
+		Tags:        []string{"Web"},
+	}, func(ctx context.Context, input *struct{}) (*WebOutput, error) {
+		body, err := web.RenderLogin()
+		if err != nil {
+			return nil, huma.Error500InternalServerError("渲染页面失败", err)
+		}
+
+		return &WebOutput{
+			ContentType: "text/html; charset=utf-8",
+			Body:        body,
+		}, nil
+	})
 }

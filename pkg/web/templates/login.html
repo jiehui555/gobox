@@ -1,0 +1,25 @@
+{{define "content"}}
+<article>
+    <header>
+        <h1>登录</h1>
+    </header>
+    <form>
+        <label for="username">
+            用户名
+            <input type="text" id="username" name="username" placeholder="请输入用户名" required>
+        </label>
+
+        <label for="password">
+            密码
+            <input type="password" id="password" name="password" placeholder="请输入密码" required>
+        </label>
+
+        <label for="remember">
+            <input type="checkbox" id="remember" name="remember" role="switch">
+            记住我
+        </label>
+
+        <button type="submit">登录</button>
+    </form>
+</article>
+{{end}}

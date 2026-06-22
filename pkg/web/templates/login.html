@@ -3,7 +3,7 @@
     <header>
         <h1>登录</h1>
     </header>
-    <form>
+    <form id="loginForm">
         <label for="email">
             邮箱
             <input type="email" id="email" name="email" placeholder="请输入邮箱" required>
@@ -21,5 +21,53 @@
 
         <button type="submit">登录</button>
     </form>
+    <div id="message" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: 4px;"></div>
 </article>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const messageDiv = document.getElementById('message');
+    
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // 存储token到localStorage
+            localStorage.setItem('token', result.token);
+            
+            messageDiv.style.backgroundColor = '#d4edda';
+            messageDiv.style.color = '#155724';
+            messageDiv.textContent = result.message + '，正在跳转...';
+            messageDiv.style.display = 'block';
+            
+            // 登录成功后跳转到首页
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1000);
+        } else {
+            messageDiv.style.backgroundColor = '#f8d7da';
+            messageDiv.style.color = '#721c24';
+            messageDiv.textContent = result.message;
+            messageDiv.style.display = 'block';
+        }
+    } catch (error) {
+        messageDiv.style.backgroundColor = '#f8d7da';
+        messageDiv.style.color = '#721c24';
+        messageDiv.textContent = '登录失败，请重试';
+        messageDiv.style.display = 'block';
+    }
+});
+</script>
 {{end}}

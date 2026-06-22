@@ -86,6 +86,25 @@ type DeleteUserOutput struct {
 	}
 }
 
+// UpdateUserInput 更新用户请求输入
+type UpdateUserInput struct {
+	ID   uint `path:"id" doc:"用户ID"`
+	Body struct {
+		Email    string `json:"email" example:"user@example.com" doc:"邮箱" required:"true"`
+		Username string `json:"username" example:"张三" doc:"用户名" required:"true"`
+		Role     string `json:"role" example:"user" doc:"角色"`
+		Password string `json:"password" example:"" doc:"密码（留空则不修改）"`
+	}
+}
+
+// UpdateUserOutput 更新用户响应输出
+type UpdateUserOutput struct {
+	Body struct {
+		Success bool   `json:"success" example:"true" doc:"是否成功"`
+		Message string `json:"message" example:"更新成功" doc:"消息"`
+	}
+}
+
 // RegisterWeb 注册网页路由
 func RegisterWeb(api huma.API) {
 	// 创建Web认证中间件
@@ -225,6 +244,58 @@ func RegisterWeb(api huma.API) {
 			}{
 				Success: true,
 				Message: "删除成功",
+			},
+		}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "api-update-user",
+		Method:      http.MethodPut,
+		Path:        "/api/users/{id}",
+		Summary:     "更新用户",
+		Tags:        []string{"User"},
+		Middlewares: huma.Middlewares{apiAuthMiddleware},
+	}, func(ctx context.Context, input *UpdateUserInput) (*UpdateUserOutput, error) {
+		// 检查邮箱是否被其他用户使用
+		existingUser, err := database.GetUserByEmail(input.Body.Email)
+		if err == nil && existingUser.ID != input.ID {
+			return &UpdateUserOutput{
+				Body: struct {
+					Success bool   `json:"success" example:"true" doc:"是否成功"`
+					Message string `json:"message" example:"更新成功" doc:"消息"`
+				}{
+					Success: false,
+					Message: "邮箱已被其他用户使用",
+				},
+			}, nil
+		}
+
+		updates := map[string]interface{}{
+			"email":    input.Body.Email,
+			"username": input.Body.Username,
+			"role":     input.Body.Role,
+		}
+
+		// 如果提供了新密码则更新
+		if input.Body.Password != "" {
+			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Body.Password), bcrypt.DefaultCost)
+			if err != nil {
+				return nil, huma.Error500InternalServerError("密码加密失败", err)
+			}
+			updates["password"] = string(hashedPassword)
+		}
+
+		if err := database.UpdateUser(input.ID, updates); err != nil {
+			return nil, huma.Error500InternalServerError("更新用户失败", err)
+		}
+
+		return &UpdateUserOutput{
+			Body: struct {
+				Success bool   `json:"success" example:"true" doc:"是否成功"`
+				Message string `json:"message" example:"更新成功" doc:"消息"`
+			}{
+				Success: true,
+				Message: "更新成功",
 			},
 		}, nil
 	})

@@ -92,6 +92,11 @@ func DeleteUser(id uint) error {
 	return db.Delete(&User{}, id).Error
 }
 
+// UpdateUser 更新用户信息
+func UpdateUser(id uint, updates map[string]interface{}) error {
+	return db.Model(&User{}).Where("id = ?", id).Updates(updates).Error
+}
+
 // GetUsers 获取所有用户
 func GetUsers() ([]User, error) {
 	var users []User

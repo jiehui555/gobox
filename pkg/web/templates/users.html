@@ -29,7 +29,10 @@
                 <td>{{.Email}}</td>
                 <td>{{.Role}}</td>
                 <td>{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
-                <td><a href="#" onclick="deleteUser({{.ID}}, '{{.Username}}'); return false;" role="button" class="outline secondary">删除</a></td>
+                <td>
+                    <a href="#" onclick="editUser({{.ID}}, '{{.Username}}', '{{.Email}}', '{{.Role}}'); return false;" role="button" class="outline">编辑</a>
+                    <a href="#" onclick="deleteUser({{.ID}}, '{{.Username}}'); return false;" role="button" class="outline secondary">删除</a>
+                </td>
             </tr>
             {{end}}
         </tbody>
@@ -67,7 +70,49 @@
     </article>
 </dialog>
 
+<dialog id="edit-user-modal">
+    <article>
+        <header>
+            <button aria-label="Close" rel="prev" onclick="document.getElementById('edit-user-modal').close()"></button>
+            <p><strong>编辑用户</strong></p>
+        </header>
+        <form id="edit-user-form">
+            <input type="hidden" id="edit-id">
+
+            <label for="edit-username">用户名</label>
+            <input type="text" id="edit-username" name="username" required>
+
+            <label for="edit-email">邮箱</label>
+            <input type="email" id="edit-email" name="email" required>
+
+            <label for="edit-password">密码</label>
+            <input type="password" id="edit-password" name="password" placeholder="留空则不修改">
+
+            <label for="edit-role">角色</label>
+            <select id="edit-role" name="role">
+                <option value="user">普通用户</option>
+                <option value="admin">管理员</option>
+            </select>
+
+            <div id="edit-form-message" role="alert" hidden></div>
+
+            <footer>
+                <button type="submit">保存</button>
+            </footer>
+        </form>
+    </article>
+</dialog>
+
 <script>
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
+}
+
+function getToken() {
+    return localStorage.getItem('token') || getCookie('token');
+}
+
 document.getElementById('create-user-form').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -82,12 +127,11 @@ document.getElementById('create-user-form').addEventListener('submit', async fun
     };
 
     try {
-        const token = localStorage.getItem('token') || getCookie('token');
         const res = await fetch('/api/users', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + getToken()
             },
             body: JSON.stringify(body)
         });
@@ -109,10 +153,56 @@ document.getElementById('create-user-form').addEventListener('submit', async fun
     }
 });
 
-function getCookie(name) {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? match[2] : null;
+function editUser(id, username, email, role) {
+    document.getElementById('edit-id').value = id;
+    document.getElementById('edit-username').value = username;
+    document.getElementById('edit-email').value = email;
+    document.getElementById('edit-password').value = '';
+    document.getElementById('edit-role').value = role;
+    document.getElementById('edit-form-message').hidden = true;
+    document.getElementById('edit-user-modal').showModal();
 }
+
+document.getElementById('edit-user-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const messageEl = document.getElementById('edit-form-message');
+    messageEl.hidden = true;
+
+    const id = document.getElementById('edit-id').value;
+    const body = {
+        username: document.getElementById('edit-username').value,
+        email: document.getElementById('edit-email').value,
+        password: document.getElementById('edit-password').value,
+        role: document.getElementById('edit-role').value
+    };
+
+    try {
+        const res = await fetch('/api/users/' + id, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getToken()
+            },
+            body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            document.getElementById('edit-user-modal').close();
+            location.reload();
+        } else {
+            messageEl.className = 'warning';
+            messageEl.textContent = data.message || '更新失败';
+            messageEl.hidden = false;
+        }
+    } catch (err) {
+        messageEl.className = 'danger';
+        messageEl.textContent = '请求失败: ' + err.message;
+        messageEl.hidden = false;
+    }
+});
 
 async function deleteUser(id, username) {
     if (!confirm('确定要删除用户 "' + username + '" 吗？')) {
@@ -120,11 +210,10 @@ async function deleteUser(id, username) {
     }
 
     try {
-        const token = localStorage.getItem('token') || getCookie('token');
         const res = await fetch('/api/users/' + id, {
             method: 'DELETE',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + getToken()
             }
         });
 

@@ -127,7 +127,7 @@ document.getElementById('create-user-form').addEventListener('submit', async fun
     };
 
     try {
-        const res = await fetch('/api/users', {
+        const res = await fetch('/web/users', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -178,7 +178,7 @@ document.getElementById('edit-user-form').addEventListener('submit', async funct
     };
 
     try {
-        const res = await fetch('/api/users/' + id, {
+        const res = await fetch('/web/users/' + id, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -210,7 +210,7 @@ async function deleteUser(id, username) {
     }
 
     try {
-        const res = await fetch('/api/users/' + id, {
+        const res = await fetch('/web/users/' + id, {
             method: 'DELETE',
             headers: {
                 'Authorization': 'Bearer ' + getToken()

@@ -116,7 +116,7 @@ func RegisterWeb(api huma.API) {
 		OperationID: "web-home",
 		Method:      http.MethodGet,
 		Path:        "/",
-		Summary:     "主页",
+		Summary:     "页面-主页",
 		Tags:        []string{"Web"},
 		Middlewares: huma.Middlewares{webAuthMiddleware},
 	}, func(ctx context.Context, input *struct{}) (*WebOutput, error) {
@@ -135,7 +135,7 @@ func RegisterWeb(api huma.API) {
 		OperationID: "web-users",
 		Method:      http.MethodGet,
 		Path:        "/users",
-		Summary:     "用户管理",
+		Summary:     "页面-用户管理",
 		Tags:        []string{"Web"},
 		Middlewares: huma.Middlewares{webAuthMiddleware},
 	}, func(ctx context.Context, input *struct{}) (*WebOutput, error) {
@@ -156,11 +156,11 @@ func RegisterWeb(api huma.API) {
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "api-create-user",
+		OperationID: "web-api-create-user",
 		Method:      http.MethodPost,
-		Path:        "/api/users",
-		Summary:     "创建用户",
-		Tags:        []string{"User"},
+		Path:        "/web/users",
+		Summary:     "用户管理-创建用户",
+		Tags:        []string{"Web"},
 		Middlewares: huma.Middlewares{apiAuthMiddleware},
 	}, func(ctx context.Context, input *CreateUserInput) (*CreateUserOutput, error) {
 		// 检查邮箱是否已存在
@@ -212,11 +212,11 @@ func RegisterWeb(api huma.API) {
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "api-delete-user",
+		OperationID: "web-api-delete-user",
 		Method:      http.MethodDelete,
-		Path:        "/api/users/{id}",
-		Summary:     "删除用户",
-		Tags:        []string{"User"},
+		Path:        "/web/users/{id}",
+		Summary:     "用户管理-删除用户",
+		Tags:        []string{"Web"},
 		Middlewares: huma.Middlewares{apiAuthMiddleware},
 	}, func(ctx context.Context, input *DeleteUserInput) (*DeleteUserOutput, error) {
 		// 获取当前用户ID，不能删除自己
@@ -249,11 +249,11 @@ func RegisterWeb(api huma.API) {
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "api-update-user",
+		OperationID: "web-api-update-user",
 		Method:      http.MethodPut,
-		Path:        "/api/users/{id}",
-		Summary:     "更新用户",
-		Tags:        []string{"User"},
+		Path:        "/web/users/{id}",
+		Summary:     "用户管理-更新用户",
+		Tags:        []string{"Web"},
 		Middlewares: huma.Middlewares{apiAuthMiddleware},
 	}, func(ctx context.Context, input *UpdateUserInput) (*UpdateUserOutput, error) {
 		// 检查邮箱是否被其他用户使用
@@ -304,7 +304,7 @@ func RegisterWeb(api huma.API) {
 		OperationID: "web-login-page",
 		Method:      http.MethodGet,
 		Path:        "/login",
-		Summary:     "登录页面",
+		Summary:     "页面-登录",
 		Tags:        []string{"Web"},
 	}, func(ctx context.Context, input *struct{}) (*WebOutput, error) {
 		body, err := web.RenderLogin()
@@ -319,11 +319,11 @@ func RegisterWeb(api huma.API) {
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "web-login",
+		OperationID: "web-api-login",
 		Method:      http.MethodPost,
-		Path:        "/api/login",
-		Summary:     "用户登录",
-		Tags:        []string{"Auth"},
+		Path:        "/web/login",
+		Summary:     "认证-用户登录",
+		Tags:        []string{"Web"},
 	}, func(ctx context.Context, input *LoginInput) (*LoginOutput, error) {
 		// 根据邮箱查找用户
 		user, err := database.GetUserByEmail(input.Body.Email)
@@ -375,11 +375,11 @@ func RegisterWeb(api huma.API) {
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "web-check-auth",
+		OperationID: "web-api-check-auth",
 		Method:      http.MethodGet,
-		Path:        "/api/auth/check",
-		Summary:     "检查登录状态",
-		Tags:        []string{"Auth"},
+		Path:        "/web/auth/check",
+		Summary:     "认证-检查登录状态",
+		Tags:        []string{"Web"},
 	}, func(ctx context.Context, input *CheckAuthInput) (*CheckAuthOutput, error) {
 		// 从header中获取token
 		tokenString := input.Token

@@ -9,6 +9,7 @@ import (
 	"github.com/danielgtaylor/huma/v2/humacli"
 
 	"github.com/jiehui555/gobox/handler"
+	"github.com/jiehui555/gobox/pkg/database"
 )
 
 // Options CLI 的配置选项
@@ -17,6 +18,9 @@ type Options struct {
 }
 
 func main() {
+	// 初始化数据库
+	database.Init()
+
 	cli := humacli.New(func(hooks humacli.Hooks, options *Options) {
 		router := http.NewServeMux()
 		api := humago.New(router, huma.DefaultConfig("我的 API", "1.2.0"))

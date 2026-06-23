@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
@@ -8,15 +9,73 @@ import (
 	"github.com/jiehui555/gobox/pkg/web"
 )
 
-// extractToken 从请求中提取token
-func extractToken(ctx huma.Context) string {
-	// 首先尝试从cookie中获取token
+// contextKey 类型用于 context 的 key
+type contextKey string
+
+const (
+	UserIDKey    contextKey = "user_id"
+	UserEmailKey contextKey = "user_email"
+	UsernameKey  contextKey = "user_username"
+	UserRoleKey  contextKey = "user_role"
+)
+
+// ExtractTokenFromCookie 从cookie中提取token
+func ExtractTokenFromCookie(r *http.Request) string {
+	cookie, err := r.Cookie("token")
+	if err == nil && cookie != nil {
+		return cookie.Value
+	}
+	return ""
+}
+
+// ExtractTokenFromHeader 从Authorization头中提取token
+func ExtractTokenFromHeader(r *http.Request) string {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader != "" {
+		parts := strings.SplitN(authHeader, " ", 2)
+		if len(parts) == 2 && parts[0] == "Bearer" {
+			return parts[1]
+		}
+	}
+	return ""
+}
+
+// AdminAuthMiddleware 管理后台认证中间件，从cookie获取token
+func AdminAuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		tokenString := ExtractTokenFromCookie(r)
+
+		if tokenString == "" {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
+		claims, err := ParseToken(tokenString)
+		if err != nil {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), UserIDKey, claims.UserID)
+		ctx = context.WithValue(ctx, UserEmailKey, claims.Email)
+		ctx = context.WithValue(ctx, UsernameKey, claims.Username)
+		ctx = context.WithValue(ctx, UserRoleKey, claims.Role)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// extractTokenFromCookieHuma 从cookie中提取token (huma版本)
+func extractTokenFromCookieHuma(ctx huma.Context) string {
 	cookie, err := huma.ReadCookie(ctx, "token")
 	if err == nil && cookie != nil {
 		return cookie.Value
 	}
+	return ""
+}
 
-	// 如果cookie中没有token，尝试从Authorization头获取
+// extractTokenFromHeaderHuma 从Authorization头中提取token (huma版本)
+func extractTokenFromHeaderHuma(ctx huma.Context) string {
 	authHeader := ctx.Header("Authorization")
 	if authHeader != "" {
 		parts := strings.SplitN(authHeader, " ", 2)
@@ -24,14 +83,13 @@ func extractToken(ctx huma.Context) string {
 			return parts[1]
 		}
 	}
-
 	return ""
 }
 
 // WebAuthMiddleware Web路由认证中间件，未认证时返回登录页面
 func WebAuthMiddleware(api huma.API) func(ctx huma.Context, next func(huma.Context)) {
 	return func(ctx huma.Context, next func(huma.Context)) {
-		tokenString := extractToken(ctx)
+		tokenString := extractTokenFromCookieHuma(ctx)
 
 		if tokenString == "" {
 			body, err := web.RenderLogin()
@@ -70,7 +128,7 @@ func WebAuthMiddleware(api huma.API) func(ctx huma.Context, next func(huma.Conte
 // APIAuthMiddleware API路由认证中间件，未认证时返回JSON错误
 func APIAuthMiddleware(api huma.API) func(ctx huma.Context, next func(huma.Context)) {
 	return func(ctx huma.Context, next func(huma.Context)) {
-		tokenString := extractToken(ctx)
+		tokenString := extractTokenFromHeaderHuma(ctx)
 
 		if tokenString == "" {
 			huma.WriteErr(api, ctx, http.StatusUnauthorized, "未登录", nil)

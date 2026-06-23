@@ -33,7 +33,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     messageDiv.className = 'mt-3 d-none';
 
     try {
-        const result = await App.api('/web/login', {
+        const result = await App.api('/login/submit', {
             method: 'POST',
             body: JSON.stringify({
                 email: document.getElementById('email').value,

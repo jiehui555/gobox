@@ -105,7 +105,7 @@
         }
         document.getElementById('logoutBtn').onclick = async function(e) {
             e.preventDefault();
-            try { await App.api('/web/logout', { method: 'POST' }); } catch {}
+            try { await App.api('/logout/submit', { method: 'POST' }); } catch {}
             App.deleteCookie('token');
             localStorage.removeItem('token');
             window.location.href = '/login';

@@ -8,6 +8,7 @@ import (
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/danielgtaylor/huma/v2/humacli"
 
+	"github.com/jiehui555/gobox/admin"
 	"github.com/jiehui555/gobox/handler"
 	"github.com/jiehui555/gobox/pkg/database"
 )
@@ -25,12 +26,12 @@ func main() {
 		router := http.NewServeMux()
 		api := humago.New(router, huma.DefaultConfig("我的 API", "1.6.2"))
 
-		// 注册路由
+		// 注册API路由（使用huma）
 		handler.RegisterTopfeelSignIn(api)
 		handler.RegisterTopfeelReply(api)
 
-		// 注册网页路由
-		handler.RegisterWeb(api)
+		// 注册管理后台路由（原生HTTP，不走huma）
+		admin.Register(router)
 
 		hooks.OnStart(func() {
 			fmt.Printf("正在端口 %d 上启动服务器...\n", options.Port)

@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Title}} - Gobox 管理后台</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <script>
+        (function() {
+            var theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
 </head>
 <body>
     <nav class="container-fluid">
@@ -16,6 +22,19 @@
             <li><a href="/">首页</a></li>
             <li><a href="/users">用户管理</a></li>
             <li><a href="/docs">API 文档</a></li>
+            <li>
+                <select id="themeSelect" onchange="changeTheme(this.value)" aria-label="切换主题" style="width: auto; padding: 0.3rem 0.5rem; margin-bottom: 0;">
+                    <option value="light">浅色</option>
+                    <option value="dark">深色</option>
+                    <option value="gray">灰色</option>
+                    <option value="slate">石板灰</option>
+                    <option value="blue">蓝色</option>
+                    <option value="green">绿色</option>
+                    <option value="red">红色</option>
+                    <option value="purple">紫色</option>
+                    <option value="orange">橙色</option>
+                </select>
+            </li>
             <li><a href="#" id="logoutBtn" onclick="logout(); return false;" style="display:none">退出</a></li>
         </ul>
     </nav>
@@ -41,6 +60,20 @@
         }
     }
 
+    function changeTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    }
+
+    function initTheme() {
+        var theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        var select = document.getElementById('themeSelect');
+        if (select) {
+            select.value = theme;
+        }
+    }
+
     async function logout() {
         try {
             await fetch('/web/logout', {
@@ -59,6 +92,7 @@
     }
 
     checkAuth();
+    initTheme();
     </script>
 </body>
 </html>

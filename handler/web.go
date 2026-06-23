@@ -150,15 +150,10 @@ func RegisterWeb(api huma.API) {
 		// 检查邮箱是否已存在
 		_, err := database.GetUserByEmail(input.Body.Email)
 		if err == nil {
-			return &WebResultOutput{
-				Body: struct {
-					Success bool   `json:"success" example:"true" doc:"是否成功"`
-					Message string `json:"message" doc:"消息"`
-				}{
-					Success: false,
-					Message: "邮箱已被使用",
-				},
-			}, nil
+			output := &WebResultOutput{}
+			output.Body.Success = false
+			output.Body.Message = "邮箱已被使用"
+			return output, nil
 		}
 
 		// 密码哈希
@@ -184,15 +179,10 @@ func RegisterWeb(api huma.API) {
 			return nil, huma.Error500InternalServerError("创建用户失败", err)
 		}
 
-		return &WebResultOutput{
-			Body: struct {
-				Success bool   `json:"success" example:"true" doc:"是否成功"`
-				Message string `json:"message" doc:"消息"`
-			}{
-				Success: true,
-				Message: "创建成功",
-			},
-		}, nil
+		output := &WebResultOutput{}
+		output.Body.Success = true
+		output.Body.Message = "创建成功"
+		return output, nil
 	})
 
 	huma.Register(api, huma.Operation{
@@ -206,30 +196,20 @@ func RegisterWeb(api huma.API) {
 		// 获取当前用户ID，不能删除自己
 		currentUserID, _ := ctx.Value("user_id").(uint)
 		if currentUserID == input.ID {
-			return &WebResultOutput{
-				Body: struct {
-					Success bool   `json:"success" example:"true" doc:"是否成功"`
-					Message string `json:"message" doc:"消息"`
-				}{
-					Success: false,
-					Message: "不能删除自己",
-				},
-			}, nil
+			output := &WebResultOutput{}
+			output.Body.Success = false
+			output.Body.Message = "不能删除自己"
+			return output, nil
 		}
 
 		if err := database.DeleteUser(input.ID); err != nil {
 			return nil, huma.Error500InternalServerError("删除用户失败", err)
 		}
 
-		return &WebResultOutput{
-			Body: struct {
-				Success bool   `json:"success" example:"true" doc:"是否成功"`
-				Message string `json:"message" doc:"消息"`
-			}{
-				Success: true,
-				Message: "删除成功",
-			},
-		}, nil
+		output := &WebResultOutput{}
+		output.Body.Success = true
+		output.Body.Message = "删除成功"
+		return output, nil
 	})
 
 	huma.Register(api, huma.Operation{
@@ -243,15 +223,10 @@ func RegisterWeb(api huma.API) {
 		// 检查邮箱是否被其他用户使用
 		existingUser, err := database.GetUserByEmail(input.Body.Email)
 		if err == nil && existingUser.ID != input.ID {
-			return &WebResultOutput{
-				Body: struct {
-					Success bool   `json:"success" example:"true" doc:"是否成功"`
-					Message string `json:"message" doc:"消息"`
-				}{
-					Success: false,
-					Message: "邮箱已被其他用户使用",
-				},
-			}, nil
+			output := &WebResultOutput{}
+			output.Body.Success = false
+			output.Body.Message = "邮箱已被其他用户使用"
+			return output, nil
 		}
 
 		updates := map[string]interface{}{
@@ -273,15 +248,10 @@ func RegisterWeb(api huma.API) {
 			return nil, huma.Error500InternalServerError("更新用户失败", err)
 		}
 
-		return &WebResultOutput{
-			Body: struct {
-				Success bool   `json:"success" example:"true" doc:"是否成功"`
-				Message string `json:"message" doc:"消息"`
-			}{
-				Success: true,
-				Message: "更新成功",
-			},
-		}, nil
+		output := &WebResultOutput{}
+		output.Body.Success = true
+		output.Body.Message = "更新成功"
+		return output, nil
 	})
 
 	huma.Register(api, huma.Operation{
@@ -312,31 +282,19 @@ func RegisterWeb(api huma.API) {
 		// 根据邮箱查找用户
 		user, err := database.GetUserByEmail(input.Body.Email)
 		if err != nil {
-			return &WebLoginOutput{
-				Body: struct {
-					Success bool   `json:"success" example:"true" doc:"是否成功"`
-					Message string `json:"message" example:"登录成功" doc:"消息"`
-					Token   string `json:"token" example:"eyJhbGciOiJIUzI1NiIs..." doc:"JWT token"`
-				}{
-					Success: false,
-					Message: "邮箱或密码错误",
-				},
-			}, nil
+			output := &WebLoginOutput{}
+			output.Body.Success = false
+			output.Body.Message = "邮箱或密码错误"
+			return output, nil
 		}
 
 		// 验证密码
 		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Body.Password))
 		if err != nil {
-			return &WebLoginOutput{
-				Body: struct {
-					Success bool   `json:"success" example:"true" doc:"是否成功"`
-					Message string `json:"message" example:"登录成功" doc:"消息"`
-					Token   string `json:"token" example:"eyJhbGciOiJIUzI1NiIs..." doc:"JWT token"`
-				}{
-					Success: false,
-					Message: "邮箱或密码错误",
-				},
-			}, nil
+			output := &WebLoginOutput{}
+			output.Body.Success = false
+			output.Body.Message = "邮箱或密码错误"
+			return output, nil
 		}
 
 		// 生成JWT token
@@ -345,17 +303,11 @@ func RegisterWeb(api huma.API) {
 			return nil, huma.Error500InternalServerError("生成token失败", err)
 		}
 
-		return &WebLoginOutput{
-			Body: struct {
-				Success bool   `json:"success" example:"true" doc:"是否成功"`
-				Message string `json:"message" example:"登录成功" doc:"消息"`
-				Token   string `json:"token" example:"eyJhbGciOiJIUzI1NiIs..." doc:"JWT token"`
-			}{
-				Success: true,
-				Message: "登录成功",
-				Token:   token,
-			},
-		}, nil
+		output := &WebLoginOutput{}
+		output.Body.Success = true
+		output.Body.Message = "登录成功"
+		output.Body.Token = token
+		return output, nil
 	})
 
 	huma.Register(api, huma.Operation{
@@ -365,15 +317,10 @@ func RegisterWeb(api huma.API) {
 		Summary:     "认证-退出登录",
 		Tags:        []string{"Web"},
 	}, func(ctx context.Context, input *struct{}) (*WebResultOutput, error) {
-		return &WebResultOutput{
-			Body: struct {
-				Success bool   `json:"success" example:"true" doc:"是否成功"`
-				Message string `json:"message" doc:"消息"`
-			}{
-				Success: true,
-				Message: "退出成功",
-			},
-		}, nil
+		output := &WebResultOutput{}
+		output.Body.Success = true
+		output.Body.Message = "退出成功"
+		return output, nil
 	})
 
 	huma.Register(api, huma.Operation{
@@ -392,29 +339,19 @@ func RegisterWeb(api huma.API) {
 		// 解析token
 		claims, err := auth.ParseToken(tokenString)
 		if err != nil {
-			return &WebCheckAuthOutput{
-				Body: struct {
-					Authenticated bool     `json:"authenticated" example:"true" doc:"是否已登录"`
-					User          *WebUser `json:"user,omitempty" doc:"用户信息"`
-				}{
-					Authenticated: false,
-				},
-			}, nil
+			output := &WebCheckAuthOutput{}
+			output.Body.Authenticated = false
+			return output, nil
 		}
 
-		return &WebCheckAuthOutput{
-			Body: struct {
-				Authenticated bool     `json:"authenticated" example:"true" doc:"是否已登录"`
-				User          *WebUser `json:"user,omitempty" doc:"用户信息"`
-			}{
-				Authenticated: true,
-				User: &WebUser{
-					ID:       claims.UserID,
-					Email:    claims.Email,
-					Username: claims.Username,
-					Role:     claims.Role,
-				},
-			},
-		}, nil
+		output := &WebCheckAuthOutput{}
+		output.Body.Authenticated = true
+		output.Body.User = &WebUser{
+			ID:       claims.UserID,
+			Email:    claims.Email,
+			Username: claims.Username,
+			Role:     claims.Role,
+		}
+		return output, nil
 	})
 }

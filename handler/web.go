@@ -65,25 +65,9 @@ type WebCreateUserInput struct {
 	}
 }
 
-// WebCreateUserOutput 创建用户响应输出
-type WebCreateUserOutput struct {
-	Body struct {
-		Success bool   `json:"success" example:"true" doc:"是否成功"`
-		Message string `json:"message" example:"创建成功" doc:"消息"`
-	}
-}
-
 // WebDeleteUserInput 删除用户请求输入
 type WebDeleteUserInput struct {
 	ID uint `path:"id" doc:"用户ID"`
-}
-
-// WebDeleteUserOutput 删除用户响应输出
-type WebDeleteUserOutput struct {
-	Body struct {
-		Success bool   `json:"success" example:"true" doc:"是否成功"`
-		Message string `json:"message" example:"删除成功" doc:"消息"`
-	}
 }
 
 // WebUpdateUserInput 更新用户请求输入
@@ -97,19 +81,11 @@ type WebUpdateUserInput struct {
 	}
 }
 
-// WebUpdateUserOutput 更新用户响应输出
-type WebUpdateUserOutput struct {
+// WebResultOutput 通用操作结果输出
+type WebResultOutput struct {
 	Body struct {
 		Success bool   `json:"success" example:"true" doc:"是否成功"`
-		Message string `json:"message" example:"更新成功" doc:"消息"`
-	}
-}
-
-// WebLogoutOutput 退出登录响应输出
-type WebLogoutOutput struct {
-	Body struct {
-		Success bool   `json:"success" example:"true" doc:"是否成功"`
-		Message string `json:"message" example:"退出成功" doc:"消息"`
+		Message string `json:"message" doc:"消息"`
 	}
 }
 
@@ -170,14 +146,14 @@ func RegisterWeb(api huma.API) {
 		Summary:     "用户管理-创建用户",
 		Tags:        []string{"Web"},
 		Middlewares: huma.Middlewares{apiAuthMiddleware},
-	}, func(ctx context.Context, input *WebCreateUserInput) (*WebCreateUserOutput, error) {
+	}, func(ctx context.Context, input *WebCreateUserInput) (*WebResultOutput, error) {
 		// 检查邮箱是否已存在
 		_, err := database.GetUserByEmail(input.Body.Email)
 		if err == nil {
-			return &WebCreateUserOutput{
+			return &WebResultOutput{
 				Body: struct {
 					Success bool   `json:"success" example:"true" doc:"是否成功"`
-					Message string `json:"message" example:"创建成功" doc:"消息"`
+					Message string `json:"message" doc:"消息"`
 				}{
 					Success: false,
 					Message: "邮箱已被使用",
@@ -208,10 +184,10 @@ func RegisterWeb(api huma.API) {
 			return nil, huma.Error500InternalServerError("创建用户失败", err)
 		}
 
-		return &WebCreateUserOutput{
+		return &WebResultOutput{
 			Body: struct {
 				Success bool   `json:"success" example:"true" doc:"是否成功"`
-				Message string `json:"message" example:"创建成功" doc:"消息"`
+				Message string `json:"message" doc:"消息"`
 			}{
 				Success: true,
 				Message: "创建成功",
@@ -226,14 +202,14 @@ func RegisterWeb(api huma.API) {
 		Summary:     "用户管理-删除用户",
 		Tags:        []string{"Web"},
 		Middlewares: huma.Middlewares{apiAuthMiddleware},
-	}, func(ctx context.Context, input *WebDeleteUserInput) (*WebDeleteUserOutput, error) {
+	}, func(ctx context.Context, input *WebDeleteUserInput) (*WebResultOutput, error) {
 		// 获取当前用户ID，不能删除自己
 		currentUserID, _ := ctx.Value("user_id").(uint)
 		if currentUserID == input.ID {
-			return &WebDeleteUserOutput{
+			return &WebResultOutput{
 				Body: struct {
 					Success bool   `json:"success" example:"true" doc:"是否成功"`
-					Message string `json:"message" example:"删除成功" doc:"消息"`
+					Message string `json:"message" doc:"消息"`
 				}{
 					Success: false,
 					Message: "不能删除自己",
@@ -245,10 +221,10 @@ func RegisterWeb(api huma.API) {
 			return nil, huma.Error500InternalServerError("删除用户失败", err)
 		}
 
-		return &WebDeleteUserOutput{
+		return &WebResultOutput{
 			Body: struct {
 				Success bool   `json:"success" example:"true" doc:"是否成功"`
-				Message string `json:"message" example:"删除成功" doc:"消息"`
+				Message string `json:"message" doc:"消息"`
 			}{
 				Success: true,
 				Message: "删除成功",
@@ -263,14 +239,14 @@ func RegisterWeb(api huma.API) {
 		Summary:     "用户管理-更新用户",
 		Tags:        []string{"Web"},
 		Middlewares: huma.Middlewares{apiAuthMiddleware},
-	}, func(ctx context.Context, input *WebUpdateUserInput) (*WebUpdateUserOutput, error) {
+	}, func(ctx context.Context, input *WebUpdateUserInput) (*WebResultOutput, error) {
 		// 检查邮箱是否被其他用户使用
 		existingUser, err := database.GetUserByEmail(input.Body.Email)
 		if err == nil && existingUser.ID != input.ID {
-			return &WebUpdateUserOutput{
+			return &WebResultOutput{
 				Body: struct {
 					Success bool   `json:"success" example:"true" doc:"是否成功"`
-					Message string `json:"message" example:"更新成功" doc:"消息"`
+					Message string `json:"message" doc:"消息"`
 				}{
 					Success: false,
 					Message: "邮箱已被其他用户使用",
@@ -297,10 +273,10 @@ func RegisterWeb(api huma.API) {
 			return nil, huma.Error500InternalServerError("更新用户失败", err)
 		}
 
-		return &WebUpdateUserOutput{
+		return &WebResultOutput{
 			Body: struct {
 				Success bool   `json:"success" example:"true" doc:"是否成功"`
-				Message string `json:"message" example:"更新成功" doc:"消息"`
+				Message string `json:"message" doc:"消息"`
 			}{
 				Success: true,
 				Message: "更新成功",
@@ -388,11 +364,11 @@ func RegisterWeb(api huma.API) {
 		Path:        "/web/logout",
 		Summary:     "认证-退出登录",
 		Tags:        []string{"Web"},
-	}, func(ctx context.Context, input *struct{}) (*WebLogoutOutput, error) {
-		return &WebLogoutOutput{
+	}, func(ctx context.Context, input *struct{}) (*WebResultOutput, error) {
+		return &WebResultOutput{
 			Body: struct {
 				Success bool   `json:"success" example:"true" doc:"是否成功"`
-				Message string `json:"message" example:"退出成功" doc:"消息"`
+				Message string `json:"message" doc:"消息"`
 			}{
 				Success: true,
 				Message: "退出成功",

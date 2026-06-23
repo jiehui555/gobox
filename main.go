@@ -23,7 +23,7 @@ func main() {
 		// 初始化数据库
 		database.Init(options.DBPath)
 		router := http.NewServeMux()
-		api := humago.New(router, huma.DefaultConfig("我的 API", "1.6.1"))
+		api := humago.New(router, huma.DefaultConfig("我的 API", "1.6.2"))
 
 		// 注册路由
 		handler.RegisterTopfeelSignIn(api)

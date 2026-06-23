@@ -105,6 +105,14 @@ type UpdateUserOutput struct {
 	}
 }
 
+// LogoutOutput 退出登录响应输出
+type LogoutOutput struct {
+	Body struct {
+		Success bool   `json:"success" example:"true" doc:"是否成功"`
+		Message string `json:"message" example:"退出成功" doc:"消息"`
+	}
+}
+
 // RegisterWeb 注册网页路由
 func RegisterWeb(api huma.API) {
 	// 创建Web认证中间件
@@ -370,6 +378,24 @@ func RegisterWeb(api huma.API) {
 				Success: true,
 				Message: "登录成功",
 				Token:   token,
+			},
+		}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "web-api-logout",
+		Method:      http.MethodPost,
+		Path:        "/web/logout",
+		Summary:     "认证-退出登录",
+		Tags:        []string{"Web"},
+	}, func(ctx context.Context, input *struct{}) (*LogoutOutput, error) {
+		return &LogoutOutput{
+			Body: struct {
+				Success bool   `json:"success" example:"true" doc:"是否成功"`
+				Message string `json:"message" example:"退出成功" doc:"消息"`
+			}{
+				Success: true,
+				Message: "退出成功",
 			},
 		}, nil
 	})

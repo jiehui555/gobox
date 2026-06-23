@@ -1,45 +1,23 @@
 {{define "content"}}
 <div class="card">
     <div class="card-body">
-        <h3 class="card-title">欢迎使用 Gobox 管理后台</h3>
-        <p class="card-text">这是一个基于 Huma 框架和 Bootstrap 5 构建的管理后台。</p>
-        <p id="userInfo" class="text-muted"></p>
+        <h4 class="card-title">欢迎使用 Gobox 管理后台</h4>
+        <p class="text-muted">基于 Huma 框架和 Bootstrap 5 构建。</p>
+        <p id="userInfo" class="mb-0"></p>
     </div>
 </div>
 
 <script>
-function getCookie(name) {
-    const value = "; " + document.cookie;
-    const parts = value.split("; " + name + "=");
-    if (parts.length === 2) return parts.pop().split(";").shift();
-    return null;
-}
-
-async function loadUserInfo() {
-    const token = getCookie('token');
-    
-    if (!token) {
-        return;
-    }
-    
+(async function() {
+    const token = App.getToken();
+    if (!token) return;
     try {
-        const response = await fetch('/web/auth/check', {
-            headers: {
-                'Authorization': 'Bearer ' + token
-            }
-        });
-        
-        const result = await response.json();
-        
+        const result = await App.api('/web/auth/check');
         if (result.authenticated && result.user) {
-            document.getElementById('userInfo').textContent = 
+            document.getElementById('userInfo').textContent =
                 '当前登录用户: ' + result.user.username + ' (' + result.user.email + ')';
         }
-    } catch (error) {
-        console.error('获取用户信息失败:', error);
-    }
-}
-
-loadUserInfo();
+    } catch {}
+})();
 </script>
 {{end}}

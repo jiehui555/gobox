@@ -15,6 +15,7 @@ var templatesFS embed.FS
 // TemplateData 模板数据
 type TemplateData struct {
 	Title string
+	Page  string
 }
 
 // UsersPageData 用户列表页面数据
@@ -25,20 +26,20 @@ type UsersPageData struct {
 
 // RenderHome 渲染首页
 func RenderHome() ([]byte, error) {
-	return renderPage("home", &TemplateData{Title: "首页"})
+	return renderPage("home", &TemplateData{Title: "首页", Page: "home"})
 }
 
 // RenderUsers 渲染用户列表页面
 func RenderUsers(users []database.User) ([]byte, error) {
 	return renderPage("users", &UsersPageData{
-		TemplateData: TemplateData{Title: "用户管理"},
+		TemplateData: TemplateData{Title: "用户管理", Page: "users"},
 		Users:        users,
 	})
 }
 
 // RenderLogin 渲染登录页面
 func RenderLogin() ([]byte, error) {
-	return renderPage("login", &TemplateData{Title: "登录"})
+	return renderPage("login", &TemplateData{Title: "登录", Page: "login"})
 }
 
 // renderPage 渲染页面

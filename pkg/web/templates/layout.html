@@ -10,104 +10,107 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <script>
         (function() {
-            var theme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-bs-theme', theme);
+            document.documentElement.setAttribute('data-bs-theme', localStorage.getItem('theme') || 'light');
         })();
     </script>
     <style>
-        .modal-backdrop { z-index: 1040; }
-        .modal { z-index: 1050; }
+        [data-bs-theme="dark"] .navbar-brand,
+        [data-bs-theme="dark"] .nav-link.active { color: #fff !important; }
     </style>
 </head>
-<body>
+<body data-page="{{.Page}}">
     <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="/">Gobox 管理后台</a>
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/"><i class="bi bi-box-seam me-2"></i>Gobox</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="/">首页</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/users">用户管理</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/docs">API 文档</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/" data-nav="home">首页</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/users" data-nav="users">用户管理</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/docs" data-nav="docs">API 文档</a></li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="#" id="themeToggle" onclick="toggleTheme(); return false;">
-                            <i class="bi bi-moon" id="themeIcon"></i>
+                        <a class="nav-link" href="#" id="themeToggle" title="切换主题">
+                            <i class="bi" id="themeIcon"></i>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" id="logoutBtn" onclick="logout(); return false;" style="display:none">退出</a>
+                    <li class="nav-item d-none" id="logoutWrap">
+                        <a class="nav-link" href="#" id="logoutBtn">退出</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
+
     <main class="container py-4">
         {{template "content" .}}
     </main>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    function getCookie(name) {
-        const value = "; " + document.cookie;
-        const parts = value.split("; " + name + "=");
-        if (parts.length === 2) return parts.pop().split(";").shift();
-        return null;
-    }
-
-    function deleteCookie(name) {
-        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax";
-    }
-
-    function checkAuth() {
-        const token = getCookie('token');
-        if (token) {
-            document.getElementById('logoutBtn').style.display = '';
+    const App = {
+        getCookie(name) {
+            const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return v ? v.pop() : null;
+        },
+        setCookie(name, value, days) {
+            let expires = '';
+            if (days) {
+                const d = new Date();
+                d.setTime(d.getTime() + days * 864e5);
+                expires = '; expires=' + d.toUTCString();
+            }
+            document.cookie = name + '=' + (value || '') + expires + '; path=/; SameSite=Lax';
+        },
+        deleteCookie(name) {
+            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
+        },
+        getToken() {
+            return localStorage.getItem('token') || this.getCookie('token');
+        },
+        async api(url, options = {}) {
+            const headers = { 'Content-Type': 'application/json', ...options.headers };
+            const token = this.getToken();
+            if (token) headers['Authorization'] = 'Bearer ' + token;
+            const res = await fetch(url, { ...options, headers });
+            return res.json();
         }
-    }
+    };
 
-    function toggleTheme() {
-        var current = document.documentElement.getAttribute('data-bs-theme') || 'light';
-        var next = current === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-bs-theme', next);
-        localStorage.setItem('theme', next);
-        updateThemeIcon(next);
-    }
+    (function initTheme() {
+        const theme = localStorage.getItem('theme') || 'light';
+        const icon = document.getElementById('themeIcon');
+        icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        document.getElementById('themeToggle').onclick = function(e) {
+            e.preventDefault();
+            const next = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-bs-theme', next);
+            localStorage.setItem('theme', next);
+            icon.className = next === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        };
+    })();
 
-    function updateThemeIcon(theme) {
-        var icon = document.getElementById('themeIcon');
-        if (icon) {
-            icon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon';
+    (function initNav() {
+        const page = document.body.dataset.page;
+        const link = document.querySelector('[data-nav="' + page + '"]');
+        if (link) link.classList.add('active');
+    })();
+
+    (function initAuth() {
+        if (App.getCookie('token')) {
+            document.getElementById('logoutWrap').classList.remove('d-none');
         }
-    }
-
-    function initTheme() {
-        var theme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-bs-theme', theme);
-        updateThemeIcon(theme);
-    }
-
-    async function logout() {
-        try {
-            await fetch('/web/logout', {
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + getCookie('token')
-                }
-            });
-        } catch (e) {
-            // 忽略错误，直接清除本地状态
-        }
-        
-        deleteCookie('token');
-        localStorage.removeItem('token');
-        window.location.href = '/login';
-    }
-
-    checkAuth();
-    initTheme();
+        document.getElementById('logoutBtn').onclick = async function(e) {
+            e.preventDefault();
+            try { await App.api('/web/logout', { method: 'POST' }); } catch {}
+            App.deleteCookie('token');
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        };
+    })();
     </script>
 </body>
 </html>

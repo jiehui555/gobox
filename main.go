@@ -26,8 +26,6 @@ func main() {
 		api := humago.New(router, huma.DefaultConfig("我的 API", "1.5.2"))
 
 		// 注册路由
-		handler.RegisterGreeting(api)
-		handler.RegisterReview(api)
 		handler.RegisterTopfeelSignIn(api)
 		handler.RegisterTopfeelReply(api)
 

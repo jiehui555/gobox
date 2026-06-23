@@ -1,34 +1,54 @@
 {{define "layout"}}
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Title}} - Gobox 管理后台</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/litera/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <script>
         (function() {
             var theme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.setAttribute('data-bs-theme', theme);
         })();
     </script>
+    <style>
+        .modal-backdrop { z-index: 1040; }
+        .modal { z-index: 1050; }
+    </style>
 </head>
 <body>
-    <nav class="container-fluid">
-        <ul>
-            <li><strong>Gobox 管理后台</strong></li>
-            <li><a href="#" id="themeToggle" onclick="toggleTheme(); return false;">🌙</a></li>
-        </ul>
-        <ul>
-            <li><a href="/">首页</a></li>
-            <li><a href="/users">用户管理</a></li>
-            <li><a href="/docs">API 文档</a></li>
-            <li><a href="#" id="logoutBtn" onclick="logout(); return false;" style="display:none">退出</a></li>
-        </ul>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="/">Gobox 管理后台</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">首页</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/users">用户管理</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/docs">API 文档</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="themeToggle" onclick="toggleTheme(); return false;">
+                            <i class="bi bi-moon" id="themeIcon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="logoutBtn" onclick="logout(); return false;" style="display:none">退出</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </nav>
-    <main class="container">
+    <main class="container py-4">
         {{template "content" .}}
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     function getCookie(name) {
         const value = "; " + document.cookie;
@@ -49,23 +69,23 @@
     }
 
     function toggleTheme() {
-        var current = document.documentElement.getAttribute('data-theme') || 'light';
+        var current = document.documentElement.getAttribute('data-bs-theme') || 'light';
         var next = current === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', next);
+        document.documentElement.setAttribute('data-bs-theme', next);
         localStorage.setItem('theme', next);
         updateThemeIcon(next);
     }
 
     function updateThemeIcon(theme) {
-        var btn = document.getElementById('themeToggle');
-        if (btn) {
-            btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+        var icon = document.getElementById('themeIcon');
+        if (icon) {
+            icon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon';
         }
     }
 
     function initTheme() {
         var theme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.setAttribute('data-bs-theme', theme);
         updateThemeIcon(theme);
     }
 

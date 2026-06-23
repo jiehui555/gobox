@@ -1,11 +1,11 @@
 {{define "content"}}
-<article>
-    <header>
-        <h1>欢迎使用 Gobox 管理后台</h1>
-    </header>
-    <p>这是一个基于 Huma 框架和 Pico CSS 构建的管理后台。</p>
-    <p id="userInfo"></p>
-</article>
+<div class="card">
+    <div class="card-body">
+        <h3 class="card-title">欢迎使用 Gobox 管理后台</h3>
+        <p class="card-text">这是一个基于 Huma 框架和 Bootstrap 5 构建的管理后台。</p>
+        <p id="userInfo" class="text-muted"></p>
+    </div>
+</div>
 
 <script>
 function getCookie(name) {
@@ -40,7 +40,6 @@ async function loadUserInfo() {
     }
 }
 
-// 页面加载时获取用户信息
 loadUserInfo();
 </script>
 {{end}}

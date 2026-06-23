@@ -61,7 +61,7 @@
                 <option value="admin">管理员</option>
             </select>
 
-            <div id="form-message" role="alert" hidden></div>
+            <div id="form-message" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: 4px;"></div>
 
             <footer>
                 <button type="submit">创建</button>
@@ -94,7 +94,7 @@
                 <option value="admin">管理员</option>
             </select>
 
-            <div id="edit-form-message" role="alert" hidden></div>
+            <div id="edit-form-message" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: 4px;"></div>
 
             <footer>
                 <button type="submit">保存</button>
@@ -117,7 +117,7 @@ document.getElementById('create-user-form').addEventListener('submit', async fun
     e.preventDefault();
 
     const messageEl = document.getElementById('form-message');
-    messageEl.hidden = true;
+    messageEl.style.display = 'none';
 
     const body = {
         username: document.getElementById('username').value,
@@ -142,14 +142,16 @@ document.getElementById('create-user-form').addEventListener('submit', async fun
             document.getElementById('create-user-modal').close();
             location.reload();
         } else {
-            messageEl.className = 'warning';
+            messageEl.style.backgroundColor = '#f8d7da';
+            messageEl.style.color = '#721c24';
             messageEl.textContent = data.message || '创建失败';
-            messageEl.hidden = false;
+            messageEl.style.display = 'block';
         }
     } catch (err) {
-        messageEl.className = 'danger';
+        messageEl.style.backgroundColor = '#f8d7da';
+        messageEl.style.color = '#721c24';
         messageEl.textContent = '请求失败: ' + err.message;
-        messageEl.hidden = false;
+        messageEl.style.display = 'block';
     }
 });
 
@@ -159,7 +161,7 @@ function editUser(id, username, email, role) {
     document.getElementById('edit-email').value = email;
     document.getElementById('edit-password').value = '';
     document.getElementById('edit-role').value = role;
-    document.getElementById('edit-form-message').hidden = true;
+    document.getElementById('edit-form-message').style.display = 'none';
     document.getElementById('edit-user-modal').showModal();
 }
 
@@ -167,7 +169,7 @@ document.getElementById('edit-user-form').addEventListener('submit', async funct
     e.preventDefault();
 
     const messageEl = document.getElementById('edit-form-message');
-    messageEl.hidden = true;
+    messageEl.style.display = 'none';
 
     const id = document.getElementById('edit-id').value;
     const body = {
@@ -193,14 +195,16 @@ document.getElementById('edit-user-form').addEventListener('submit', async funct
             document.getElementById('edit-user-modal').close();
             location.reload();
         } else {
-            messageEl.className = 'warning';
+            messageEl.style.backgroundColor = '#f8d7da';
+            messageEl.style.color = '#721c24';
             messageEl.textContent = data.message || '更新失败';
-            messageEl.hidden = false;
+            messageEl.style.display = 'block';
         }
     } catch (err) {
-        messageEl.className = 'danger';
+        messageEl.style.backgroundColor = '#f8d7da';
+        messageEl.style.color = '#721c24';
         messageEl.textContent = '请求失败: ' + err.message;
-        messageEl.hidden = false;
+        messageEl.style.display = 'block';
     }
 });
 

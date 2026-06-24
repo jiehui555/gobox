@@ -82,7 +82,7 @@ func handleUsersAPI(w http.ResponseWriter, r *http.Request) {
 
 // handleUserAPI 单个用户API
 func handleUserAPI(w http.ResponseWriter, r *http.Request) {
-	idStr := r.URL.Path[len("/admin/users/"):]
+	idStr := r.URL.Path[len("/admin/api/users/"):]
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "无效的用户ID")

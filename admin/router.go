@@ -8,17 +8,16 @@ import (
 
 // Register 注册管理后台路由
 func Register(mux *http.ServeMux) {
-	// 公开页面
-	mux.HandleFunc("/login", handleLoginPage)
-	mux.HandleFunc("/login/submit", handleLogin)
-	mux.HandleFunc("/logout/submit", handleLogout)
+	// 公开操作
+	mux.HandleFunc("/admin/login", handleLoginRouter)
+	mux.HandleFunc("/admin/logout", handleLogout)
 
 	// 需要认证的页面
-	mux.Handle("/", auth.AdminAuthMiddleware(http.HandlerFunc(handleHome)))
-	mux.Handle("/users", auth.AdminAuthMiddleware(http.HandlerFunc(handleUsersPage)))
+	mux.Handle("/admin", auth.AdminAuthMiddleware(http.HandlerFunc(handleHome)))
+	mux.Handle("/admin/users", auth.AdminAuthMiddleware(http.HandlerFunc(handleUsersPage)))
 
 	// 需要认证的API
-	mux.Handle("/admin/auth/check", auth.AdminAuthMiddleware(http.HandlerFunc(handleCheckAuth)))
-	mux.Handle("/admin/users", auth.AdminAuthMiddleware(http.HandlerFunc(handleUsersAPI)))
-	mux.Handle("/admin/users/", auth.AdminAuthMiddleware(http.HandlerFunc(handleUserAPI)))
+	mux.Handle("/admin/api/auth/check", auth.AdminAuthMiddleware(http.HandlerFunc(handleCheckAuth)))
+	mux.Handle("/admin/api/users", auth.AdminAuthMiddleware(http.HandlerFunc(handleUsersAPI)))
+	mux.Handle("/admin/api/users/", auth.AdminAuthMiddleware(http.HandlerFunc(handleUserAPI)))
 }

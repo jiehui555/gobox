@@ -21,14 +21,14 @@
 <body data-page="{{.Page}}">
     <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="/"><i class="bi bi-box-seam me-2"></i>Gobox</a>
+            <a class="navbar-brand fw-bold" href="/admin"><i class="bi bi-box-seam me-2"></i>Gobox</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="/" data-nav="home">首页</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/users" data-nav="users">用户管理</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin" data-nav="home">首页</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/users" data-nav="users">用户管理</a></li>
                     <li class="nav-item"><a class="nav-link" href="/docs" data-nav="docs">API 文档</a></li>
                 </ul>
                 <ul class="navbar-nav">
@@ -105,10 +105,10 @@
         }
         document.getElementById('logoutBtn').onclick = async function(e) {
             e.preventDefault();
-            try { await App.api('/logout/submit', { method: 'POST' }); } catch {}
+            try { await App.api('/admin/logout', { method: 'POST' }); } catch {}
             App.deleteCookie('token');
             localStorage.removeItem('token');
-            window.location.href = '/login';
+            window.location.href = '/admin/login';
         };
     })();
     </script>

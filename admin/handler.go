@@ -8,6 +8,18 @@ import (
 	"github.com/jiehui555/gobox/pkg/web"
 )
 
+// handleLoginRouter 登录路由（GET 返回页面，POST 处理登录）
+func handleLoginRouter(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		handleLoginPage(w, r)
+	case http.MethodPost:
+		handleLogin(w, r)
+	default:
+		writeError(w, http.StatusMethodNotAllowed, "方法不允许")
+	}
+}
+
 // handleLoginPage 登录页面
 func handleLoginPage(w http.ResponseWriter, r *http.Request) {
 	body, err := web.RenderLogin()
@@ -21,7 +33,7 @@ func handleLoginPage(w http.ResponseWriter, r *http.Request) {
 
 // handleHome 主页
 func handleHome(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
+	if r.URL.Path != "/admin" {
 		http.NotFound(w, r)
 		return
 	}

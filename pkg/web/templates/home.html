@@ -12,7 +12,7 @@
     const token = App.getToken();
     if (!token) return;
     try {
-        const result = await App.api('/web/auth/check');
+        const result = await App.api('/admin/api/auth/check');
         if (result.authenticated && result.user) {
             document.getElementById('userInfo').textContent =
                 '当前登录用户: ' + result.user.username + ' (' + result.user.email + ')';

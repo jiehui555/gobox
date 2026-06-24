@@ -46,13 +46,13 @@ func AdminAuthMiddleware(next http.Handler) http.Handler {
 		tokenString := ExtractTokenFromCookie(r)
 
 		if tokenString == "" {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 			return
 		}
 
 		claims, err := ParseToken(tokenString)
 		if err != nil {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 			return
 		}
 

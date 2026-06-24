@@ -128,7 +128,7 @@ userForm.addEventListener('submit', async function(e) {
     };
 
     try {
-        const url = isEdit ? '/admin/users/' + id : '/admin/users';
+        const url = isEdit ? '/admin/api/users/' + id : '/admin/api/users';
         const result = await App.api(url, { method: isEdit ? 'PUT' : 'POST', body: JSON.stringify(body) });
 
         if (result.success) {
@@ -148,7 +148,7 @@ document.querySelectorAll('[data-action="delete"]').forEach(function(btn) {
     btn.addEventListener('click', async function() {
         if (!confirm('确定要删除用户 "' + this.dataset.username + '" 吗？')) return;
         try {
-            const result = await App.api('/admin/users/' + this.dataset.id, { method: 'DELETE' });
+            const result = await App.api('/admin/api/users/' + this.dataset.id, { method: 'DELETE' });
             if (result.success) {
                 location.reload();
             } else {
